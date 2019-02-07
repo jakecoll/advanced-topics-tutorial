@@ -1,0 +1,32 @@
+
+# Server with basic user data
+  my_instance:
+    type: OS::Nova::Server
+    properties:
+      flavor: baremetal
+      image: { get_param: image }
+      key_name: { get_param: key_name }
+      networks:
+        - network: sharednet1
+      scheduler_hints: { reservation: { get_param: reservation_id } }
+      user_data: |
+        #!/bin/bash
+        echo "Hello World"
+
+# Server with parameters passed to user data
+  my_instance:
+    type: OS::Nova::Server
+    properties:
+      flavor: baremetal
+      image: { get_param: image }
+      key_name: { get_param: key_name }
+      networks:
+        - network: sharednet1
+      scheduler_hints: { reservation: { get_param: reservation_id } }
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash
+            echo "$message"
+          params:
+            $message: "Hello World"

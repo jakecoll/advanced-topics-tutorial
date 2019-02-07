@@ -1,0 +1,21 @@
+# CLI example
+
+ $ openstack object list <container>
+ $ openstack object save <container> <object>
+ $ openstack object create <container> <filename>
+ $ openstack object delete <container> <object>
+
+
+
+# Cloudfuse
+
+ username=<username>
+ password=<password>
+ tenant=Chameleon
+ region=<region> # CHI@TACC or CHI@UC
+ authurl=https://chi.<uc or tacc>.chameleoncloud.org:5000/v2.0
+
+ $ touch ~/.cloudfuse
+ $ vi ~/.cloudfuse
+ $ mkdir /path/to/<mount_dir>
+ $ cloudfuse /path/to/<mount_dir>

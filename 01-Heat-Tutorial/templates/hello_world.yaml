@@ -1,0 +1,37 @@
+heat_template_version: 2015-10-15
+
+description: Example hello world script.
+
+parameters:
+  image:
+    type: string
+    default: CC-CentOS7
+    constraints:
+    - custom_constraint: glance.image
+  key_name:
+    type: string
+    description: Name of a KeyPair to enable ssh access to the instance.
+    default: default
+    constraints:
+    - custom_constraint: nova.keypair
+  reservation_id:
+    type: string
+    description: ID of the Blazar reservation to use for launching instances.
+    constraints:
+    - custom_constraint: blazar.reservation
+
+resources:
+  my_instance:
+    type: OS::Nova::Server
+    properties:
+      flavor: baremetal
+      image: { get_param: image }
+      key_name: { get_param: key_name }
+      networks:
+        - network: sharednet1
+      scheduler_hints: { reservation: { get_param: reservation_id } }
+
+outputs:
+  private_ip:
+    description: Private ip address of the instance launched.
+    value: { get_attr: [my_instance, first_address] }

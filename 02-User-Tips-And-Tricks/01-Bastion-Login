@@ -1,0 +1,13 @@
+
+# Agent-Forwarding Code Block
+
+ [local]
+ $ ssh-add ~/.ssh/<keypair>.pem
+ $ ssh -A cc@<floating_ip>
+ [remote]
+ $ ssh cc@<private_ip>
+
+# ProxyJump
+
+ $ ssh-add ~/.ssh/<keypair>.pem
+ $ ssh -J cc@<floating_ip> cc@<private_ip>

@@ -1,0 +1,22 @@
+CLI exmaples:
+
+blazar lease-create \
+  --physical-reservation \
+  min=2,max=2,resource_properties='["and",["==","$uid","<uuid>"],["==","$uid","<uuid>"]]' \
+  --start-date "2019-02-06 10:00" \
+  --end-date "2019-02-06 23:59" \
+  test-lease
+
+blazar lease-create \
+  --physical-reservation \
+  min=2,max=2,resource_properties='["and",["==","$node_type","compute_haswell"],["!=","$uid","<uuid>"]]' \
+  --start-date "2019-02-06 10:00" \
+  --end-date "2019-02-06 23:59" \
+  test-lease
+
+blazar lease-create \
+  --physical-reservation \
+  min=2,max=2,resource_properties='["and",["==","$node_type","compute_haswell"],["!=","$uid","<uuid>"]]' \
+  --start-date "2019-02-06 10:00" \
+  --end-date "2019-02-06 23:59" \
+  test-lease
