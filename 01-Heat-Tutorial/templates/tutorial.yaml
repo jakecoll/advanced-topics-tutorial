@@ -1,7 +1,7 @@
-description: Configures network isolation (only on CHI@UC)
-
 # This defines the minimum Heat version required by this template.
 heat_template_version: 2017-02-24
+
+description: Configures network isolation and all-to-all information exchange.
 
 # The parameters section gathers configuration from the user.
 parameters:
@@ -28,6 +28,9 @@ parameters:
 resources:
 
   ##### NETWORK #####
+  # src:
+  ###################
+
   # 1. Network Name
   isolated_net:
     type: OS::Neutron::Net
@@ -100,7 +103,7 @@ resources:
                 git clone https://github.com/jakecoll/advanced-topics-tutorial.git
                 sudo chmod -R 777 advanced-topics-tutorial/
                 cd advanced-topics-tutorial/01-Heat-Tutorial
-                sudo -u root python socket_server.py &
+                sudo -u cc python socket_server.py &
               params:
                 $count: { get_param: instance_count }
 
