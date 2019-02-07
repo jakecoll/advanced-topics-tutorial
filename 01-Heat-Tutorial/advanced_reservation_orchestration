@@ -1,0 +1,16 @@
+
+#Initialize Heat Stack
+heat stack-create \
+     -f ~/advanced-topics-tutorial/01-Heat-Tutorial/templates/tutorial.yaml \
+     --initialize \
+     -P reservation_id=dummy  \
+     -P cidr_net=192.168.100.0/24 \
+     -P key_name=jakecoll-chi \
+     -P instance_count=3 \
+     heat-tutorial-init2
+
+# Create lease with stack id
+blazar lease-create \
+     --physical-reservation min=3,max=3,on_start=orchestration:<stack_id> \
+     --end-date "2019-01-08 23:59" \
+     orchestrate
