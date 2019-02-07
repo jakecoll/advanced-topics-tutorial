@@ -9,7 +9,7 @@ port = 5000
 
 buffer_size = 4096
 
-server_socket.bind((host, port))
+server_socket.bind(('', port))
 server_socket.listen(10)
 
 print("Listening on %s:%s..." % (host, str(port)))
@@ -23,7 +23,7 @@ while True:
     msg = ""
 
     if host == 'tutorial-server-0':
-        with open('/etc/hosts', r) as f:
+        with open('/etc/hosts', 'r') as f:
             for line in f.readlines():
                 if host not in line:
                     ip, hostname = line.split(' ')
