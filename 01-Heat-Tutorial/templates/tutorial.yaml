@@ -1,0 +1,123 @@
+description: Configures network isolation (only on CHI@UC)
+
+# This defines the minimum Heat version required by this template.
+heat_template_version: 2017-02-24
+
+# The parameters section gathers configuration from the user.
+parameters:
+  reservation_id:
+    type: string
+    description: ID of the Blazar reservation to user for launching instances.
+    constraints:
+    - custom_constraint: blazar.reservation
+  key_name:
+    type: string
+    default: default
+    constraints:
+    - custom_constraint: nova.keypair
+  instance_count:
+    type: number
+    default: 2
+  cidr_net:
+    type: string
+    label: Private IP address range, e.g. 192.168.100.0/24
+    description: 'IP range of the isolated network'
+
+# The resources section defines what OpenStack resources are to be deployed and
+# how they should be configured.
+resources:
+
+  ##### NETWORK #####
+  # 1. Network Name
+  isolated_net:
+    type: OS::Neutron::Net
+    properties:
+      name: tutorial_example_network
+
+  # 2. Subnet Name
+  #   a. Subnet IP and CIDR
+  #   b. DNS servers
+  isolated_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: tutorial_example_subnet
+      network: { get_resource: isolated_net }
+      cidr: { get_param: cidr_net }
+      dns_nameservers: [ 8.8.8.8 ]
+      ip_version: 4
+
+  # 3. Router
+  #   a. external interface (public for UC)
+  router:
+    type: OS::Neutron::Router
+    properties:
+      name: tutorial_example_router
+      external_gateway_info: { network: public }
+
+  # 3.b. Internal router interface
+  router_int:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet: { get_resource: isolated_subnet }
+
+  ##### Public IP Address ####
+
+  instance_floating_ip:
+    type: OS::Nova::FloatingIP
+    properties:
+      pool: public
+
+  instance_association:
+    type: OS::Nova::FloatingIPAssociation
+    depends_on: cluster
+    properties:
+      floating_ip: { get_resource: instance_floating_ip }
+      server_id: { get_attr: [cluster, resource.0]}
+
+  ##### Servers #####
+
+  cluster:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: { get_param: instance_count }
+      resource_def:
+        type: OS::Nova::Server
+        properties:
+          name: tutorial-server-%index%
+          image: CC-Ubuntu16.04
+          flavor: baremetal
+          key_name: { get_param: key_name }
+          networks:
+            - subnet: { get_resource: isolated_subnet }
+              fixed_ip: 192.168.100.2%index%
+          scheduler_hints: { reservation: { get_param: reservation_id } }
+          user_data:
+            str_replace:
+              template: |
+                #!/bin/sh
+                for i in `seq 1 $count`
+                do
+                    echo "192.168.100.2$i" >> /etc/hosts
+                done
+                cd /home/cc
+                git clone https://github.com/jakecoll/advanced-topics-tutorial.git
+                cd advanced-topics-tutorial/01-Heat-Tutorial
+                python socket_server.py &
+              params:
+                $count: { get_param: instance_count }
+
+# The Outputs section tells users what is available
+outputs:
+  dhcp_pool:
+    description: DHCP pool
+    value: { get_attr: [isolated_subnet, allocation_pools] }
+  isolated_net_id:
+    description: Network ID to attach Nova instances
+    value: { get_resource: isolated_net }
+  first_instance_ip:
+    description: The public IP address of the first instance.
+    value: { get_attr: [instance_floating_ip, ip] }
+  cluster_ips:
+    description: Private IP addresses of servers in cluster.
+    value: { get_attr: [cluster, first_address] }
