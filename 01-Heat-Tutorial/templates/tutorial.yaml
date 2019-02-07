@@ -31,8 +31,6 @@ resources:
   # 1. Network Name
   isolated_net:
     type: OS::Neutron::Net
-    properties:
-      name: tutorial_example_network
 
   # 2. Subnet Name
   #   a. Subnet IP and CIDR
@@ -40,7 +38,6 @@ resources:
   isolated_subnet:
     type: OS::Neutron::Subnet
     properties:
-      name: tutorial_example_subnet
       network: { get_resource: isolated_net }
       cidr: { get_param: cidr_net }
       dns_nameservers: [ 8.8.8.8 ]
@@ -51,11 +48,10 @@ resources:
   router:
     type: OS::Neutron::Router
     properties:
-      name: tutorial_example_router
       external_gateway_info: { network: public }
 
   # 3.b. Internal router interface
-  router_int:
+  router_interface:
     type: OS::Neutron::RouterInterface
     properties:
       router_id: { get_resource: router }
@@ -96,9 +92,9 @@ resources:
             str_replace:
               template: |
                 #!/bin/sh
-                for i in `seq 1 $count`
+                for i in `seq 0 $count`
                 do
-                    echo "192.168.100.2$i" >> /etc/hosts
+                    echo "192.168.100.2$i tutorial-server-$i" >> /etc/hosts
                 done
                 cd /home/cc
                 git clone https://github.com/jakecoll/advanced-topics-tutorial.git
