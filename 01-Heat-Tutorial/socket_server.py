@@ -25,13 +25,13 @@ while True:
     if host == 'tutorial-server-0':
         with open('/etc/hosts', 'r') as f:
             for line in f.readlines():
-                if host not in line:
+                if host not in line and 'tutorial-server' in line:
                     ip, hostname = line.split(' ')
-                    r = urlopen('http://%s:5000' % hostname)
+                    r = urlopen('http://%s:5000' % hostname.strip())
                     if r.code == 200:
                         msg += r.read() + '\n'
                     else:
-                        msg += "%s is down." % hostname
+                        msg += "%s is down." % hostname.strip()
         f.close()
 
     msg += "%s is live." % host
